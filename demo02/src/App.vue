@@ -4,9 +4,24 @@
       <router-link to="/">Home</router-link> |
       <router-link to="/about">About</router-link>
     </div>
+    <button @click="minus">-</button>
+    {{$store.state.count}}
+    <button @click="add">+</button>
     <router-view/>
   </div>
 </template>
+<script>
+  export default {
+    methods: {
+      add() {
+        this.$store.dispatch("increment")
+      },
+      minus() {
+        this.$store.dispatch("decrement")
+      }
+    }
+  }
+</script>
 
 <style>
 #app {
