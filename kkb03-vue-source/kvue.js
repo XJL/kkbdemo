@@ -7,6 +7,8 @@ class Vue {
 
         // 数据响应化
         this.$data = options.data;
+
+        // 监听数据
         this.observe(this.$data);
     }
 

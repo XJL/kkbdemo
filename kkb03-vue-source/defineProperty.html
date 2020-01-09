@@ -8,17 +8,36 @@
 </head>
 <body>
     <div id="app">
-        <p id="name"></p>
+        <p id="name">{{name}}</p>
+        <p v-text="name"></p>
+        <p>{{age}}</p>
+        <p></p>
+        <div>
+            <input type="text" v-model="input"/>
+            <buton @click="changeData"/>
+        </div>
+        <div v-html="html"></div>
     </div>
 
 
-    <script src="kvue.js"></script>
+    <!--<script src="kvue.js"></script>-->
+    <script src="myVue.js"></script>
     <script>
         const app = new Vue({
             data: {
+                age: 23,
+                name: 'Jerry',
                 test: 'i am test',
                 foo: {
                     bar: 'bar'
+                },
+                input: "",
+                html: '<p>我是模板html</p>'
+            },
+            methods: {
+                changeData() {
+                    this.name = "Tom";
+                    this.age = 30;
                 }
             }
         })
