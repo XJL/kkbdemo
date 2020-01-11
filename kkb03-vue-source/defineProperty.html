@@ -8,22 +8,26 @@
 </head>
 <body>
     <div id="app">
-        <p id="name">{{name}}</p>
+        <!--   插值绑定     -->
+        <p>{{name}}</p>{{name}}
+        <!--   指令绑定     -->
         <p v-text="name"></p>
         <p>{{age}}</p>
-        <p></p>
-        <div>
-            <input type="text" v-model="input"/>
-            <buton @click="changeData"/>
-        </div>
-        <div v-html="html"></div>
+        <p>
+            {{test}}
+        </p>
+        <!--   双向绑定     -->
+        <input type="text" v-model="name">
+        <!--   事件处理     -->
+        <button @click="changeName">呵呵</button>
+        <!--   html内容解析     -->
+        <div v-html="<button>123</button>"></div>
     </div>
-
-
-    <!--<script src="kvue.js"></script>-->
+    <script src="compile.js"></script>
     <script src="myVue.js"></script>
     <script>
         const app = new Vue({
+            el: "#app",
             data: {
                 age: 23,
                 name: 'Jerry',
@@ -35,7 +39,7 @@
                 html: '<p>我是模板html</p>'
             },
             methods: {
-                changeData() {
+                changeName() {
                     this.name = "Tom";
                     this.age = 30;
                 }

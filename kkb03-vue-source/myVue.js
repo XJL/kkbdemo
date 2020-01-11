@@ -3,10 +3,16 @@ class Vue {
 
         // 数据赋值
         this.$data = props.data;
+        // 事件
+        this.$methods = props.methods;
 
         // 监听数据变化
         this.observe(this.$data);
 
+        this.proxyAllMethods(this.$methods);
+
+        // 编译
+        this.$compile = new Compile(props.el, this);
     }
 
     // 监听数据
@@ -19,12 +25,56 @@ class Vue {
         Object.keys(data).forEach(key=>{
             // 实现数据响应
             this.defineReactive(data, key, data[key]);
+
+            // 代理this.$data 或者 this.$methods的内容到this上，方便调用。
+            this.proxyData(key);
         });
+    }
+
+    // 代理方法
+    proxyAllMethods(methods) {
+        if(!methods || typeof methods !== 'object') {
+           return;
+        }
+
+        Object.keys(methods).forEach(key=>{
+            this.proxyMethod(key);
+        });
+    }
+
+    proxyMethod(key) {
+        Object.defineProperty(this, key, {
+            set(newFn) {
+                if(typeof newFn === 'function') {
+                    this.$methods[key] = newFn;
+                }
+            },
+            get() {
+                return this.$methods[key];
+            }
+        })
+    }
+
+    // 代理函数
+    proxyData(key) {
+        Object.defineProperty(this, key, {
+            set(newVal) {
+                this.$data[key] = newVal;
+            },
+            get() {
+                return this.$data[key];
+            }
+        })
     }
 
     defineReactive(data, key, value) {
         // 递归调用
         this.observe(data[key]);
+
+        // 对象就不做跟踪了 因为前面有做深度遍历
+        if(typeof data[key] === 'object') {
+            return;
+        }
 
         // 对象属性在这里之前都做了递归遍历
         // 这里就对对象属性进行过滤
@@ -47,9 +97,7 @@ class Vue {
                     return;
                 }
 
-                // 更新数据
-                // console.log("更新数据啦！");
-
+                value = newVal;
                 // 属性的Dep对象实例通知watchers进行更新操作
                 dep.notify();
             }
@@ -83,12 +131,20 @@ class Dep {
 // 观察者
 // 单个观察者只负责单个使用到数据的关系
 class Watcher {
-    constructor() {
+    constructor(vm, exp, cb) {
+        // 数据模型
+        this.vm = vm;
+        // 表达式
+        this.exp = exp;
+        this.cb = cb;
+
         // 将当前的Watcher实例指向Dep静态target属性
         Dep.target = this;
+        this.vm[this.exp]; // 为了触发getter方法以收集这个watcher到Dep对象中
+        Dep.target = null;
     }
 
     update() {
-        console.log("更新数据啦！");
+        this.cb.call(this.vm, this.vm[this.exp]);
     }
 }
